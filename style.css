@@ -1,0 +1,307 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+}
+h1 {
+  text-align: center;
+}
+
+button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+#questions {
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+#pageTitle {
+  font-size: 1.5em; /* 根据需要调整字体大小 */
+}
+
+.notification {
+  /* 其他样式 */
+  overflow-y: auto; /* 添加滚动条以便查看所有内容 */
+}
+.notification, #settings {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  z-index: 1000;
+  cursor: move;
+  overflow-y: auto; /* 添加滚动条以便查看所有内容 */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.notification button, #settings button {
+  display: block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#sidebar {
+  width: 0;
+  height: 100%;
+  background-color: #111;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  position: fixed;
+  z-index: 1;
+}
+
+#sidebar a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 18px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+#sidebar a:hover {
+  color: #f1f1f1;
+}
+
+#main {
+  width: 100%;
+  transition: margin-left .5s;
+  padding: 16px;
+  margin-left: 0;
+}
+
+#sidebarToggle {
+  display: block;
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  cursor: pointer;
+  z-index: 2;
+  -webkit-user-select: none;
+  user-select: none;
+  width: 40px;
+  height: 40px;
+}
+
+#sidebarToggle::before,
+#sidebarToggle::after,
+#sidebarToggle {
+  content:'';
+  position: absolute;
+  height: 5px;
+  width: 35px;
+  background-color: #333 !important;
+  transition: 0.4s;
+}
+
+#sidebarToggle::before {
+  top: -10px;
+}
+
+#sidebarToggle::after {
+  top: 10px;
+}
+
+#sidebarToggle:checked::before {
+  transform: rotate(-45deg) translate(-9px, 6px);
+}
+
+#sidebarToggle:checked::after {
+  transform: rotate(45deg) translate(-8px, -8px);
+}
+
+#sidebarToggle:checked {
+  opacity: 1;
+}
+
+#sidebarToggle:checked + .bar:nth-child(1) {
+  transform: rotate(-45deg) translate(-9px, 6px);
+}
+
+#sidebarToggle:checked + .bar:nth-child(2) {
+  opacity: 0;
+}
+
+#sidebarToggle:checked + .bar:nth-child(3) {
+  transform: rotate(45deg) translate(-8px, -8px);
+}
+
+#sidebarToggle:checked ~ #sidebar {
+  width: 250px;
+}
+
+/* 新增的样式 */
+#settings input, #settings select {
+  margin-bottom: 10px;
+}
+
+#settings label {
+  margin-bottom: 5px;
+}
+
+#scoreBoard {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ccc;
+  z-index: 1000;
+  cursor: move;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#scoreBoard button {
+  display: block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.translateSelectLanguage{
+  position: absolute;
+  width: 10em;
+  top: 1em;
+  right: 1em;
+}
+.historyNotificationsContainer {
+  /* 添加样式以限制高度和添加滚动栏 */
+  max-height: 150px;
+  overflow-y: auto;
+}
+.historyNotification {
+  /* 样式可以根据需要进行调整 */
+  background-color: #ffeeba;
+  padding: 10px;
+  border: 1px solid #ffc107;
+  margin-bottom: 10px;
+}
+/* 新增样式用于全黑页面通知 */
+.blackPageNotification {
+    z-index: 1500;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(44, 44, 44);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+}
+.blackPageNotificationContent {
+    color: white;
+    font-size: 20px;
+}
+canvas {
+/* border: 1px solid #838383; */
+position: relative;
+top: -20px;
+display: block;
+}
+#lizi {
+position: absolute;
+width: 100%;
+height: 100vh;
+}
+
+#lizi li {
+    position: absolute;
+    top: 105%;
+    left: 0;
+    width: 4px;
+    height: 4px;
+    background-color: rgb(253, 253, 253);
+    border-radius: 50%;
+    filter: blur(2px);
+    list-style: none;
+
+    animation: animate linear infinite;
+
+}
+@keyframes animate {
+  0% {
+      top: 100%;
+
+  }
+
+  100% {
+      top: 0%;
+
+  }
+}
+
+#decrition {
+    position: relative;
+    width: 300px;
+    height: 5px;
+    border-radius: 50%;
+    filter: blur(1px);
+    background-color: rgb(49, 49, 49);
+    animation: animate2 3.5s linear infinite;
+}
+
+@keyframes animate2 {
+    0% {
+        background-color: rgb(49, 49, 49);
+
+    }
+
+    50% {
+        background-color: rgb(119, 119, 119);
+    }
+
+    100% {
+        background-color: rgb(49, 49, 49);
+
+    }
+}
+/* 隐藏页面伪元素通知样式 */
+.hiddenPageNotification {
+z-index: 1500;
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.8);
+justify-content: center;
+align-items: center;
+cursor: pointer;
+}
+
+.hiddenPageNotificationContent {
+color: white;
+font-size: 20px;
+}    
