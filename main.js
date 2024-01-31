@@ -44,59 +44,59 @@ function generateQuestionsLogic(questionCount, optionCount, selectedOperators, m
     var operator = selectedOperators[Math.floor(Math.random() * selectedOperators.length)];
     var answer;
 
-  // 计算答案之前检查运算符
-  switch (operator) {
-    case "+":
-      answer = num1 + num2;
-      break;
-    case "-":
-      answer = num1 - num2;
-      break;
-    case "*":
-      answer = num1 * num2;
-      break;
-    case "/":
-      // 确保分母不为零
-      if (num2 !== 0) {
-        answer = num1 / num2;
-      } else {
-        // 如果分母为零，则重新生成 num2
-        num2 = Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber;
-        answer = num1 / num2;
-      }
-      break;
-    default:
-      // 处理未知运算符，这里您可以进行适当的处理
-      alert("未知的运算符：" + operator);
-      return;
+    // 计算答案之前检查运算符
+    switch (operator) {
+      case "+":
+        answer = num1 + num2;
+        break;
+      case "-":
+        answer = num1 - num2;
+        break;
+      case "*":
+        answer = num1 * num2;
+        operator = "×"; // 将乘法符号显示为 ×
+        break;
+      case "/":
+        // 确保分母不为零
+        if (num2 !== 0) {
+          answer = num1 / num2;
+          operator = "÷"; // 将除法符号显示为 ÷
+        } else {
+          // 如果分母为零，则重新生成 num2
+          num2 = Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber;
+          answer = num1 / num2;
+        }
+        break;
+      default:
+        // 处理未知运算符，这里您可以进行适当的处理
+        alert("未知的运算符：" + operator);
+        return;
+    }
+
+    // ... 之前的生成题目逻辑 ...
+
+    var options = generateOptions(answer, i, optionCount);
+
+    var question = num1 + " " + operator + " " + num2 + " = ?";
+    var questionHTML = "<p>" + question + "</p><form data-answer='" + answer + "'>" + options + "</form>";
+
+    questionsContainer.innerHTML += questionHTML;
   }
 
-  // ... 之前的生成题目逻辑 ...
+  questionsGenerated = true;
 
-  var options = generateOptions(answer, i, optionCount);
-
-  var question = num1 + " " + operator + " " + num2 + " = ?";
-  var questionHTML = "<p>" + question + "</p><form data-answer='" + answer + "'>" + options + "</form>";
-
-  questionsContainer.innerHTML += questionHTML;
+  // 保存当前生成的设置
+  lastGeneratedSettings = {
+    questionCount: questionCount,
+    optionCount: optionCount,
+    selectedOperators: selectedOperators,
+    minNumber: minNumber,
+    maxNumber: maxNumber
+  };
+  // 动态改变标题
+  applyTitleSettings(generateTitleFromSettings(lastGeneratedSettings));
 }
-
-questionsGenerated = true;
-// score = 0;
-
-// 保存当前生成的设置
-lastGeneratedSettings = {
-questionCount: questionCount,
-optionCount: optionCount,
-selectedOperators: selectedOperators,
-minNumber: minNumber,
-maxNumber: maxNumber
-};
-var feedbackMessage = "<p>答题完成！得分: " + score + "</p>";
-// 动态改变标题
-applyTitleSettings(generateTitleFromSettings(lastGeneratedSettings));
-}
-    
+  
 // 生成标题的函数，根据设置返回相应标题
 function generateTitleFromSettings(settings) {
   var title = settings.minNumber + " ~ " + settings.maxNumber + "的";
@@ -245,44 +245,51 @@ function generateOptions(answer, questionIndex, optionCount) {
 
 // 检查答案的函数
 function checkAnswers() {
-if (!questionsGenerated) {
-alert("请先生成题目。");
-return;
+  if (!questionsGenerated) {
+    alert("请先生成题目。");
+    return;
+  }
+
+  var feedbackContainer = document.getElementById("notification");
+  feedbackContainer.innerHTML = ""; // 清空之前的反馈信息
+
+  var questions = document.querySelectorAll("#questions form");
+  var allAnswered = true;
+
+  for (var i = 0; i < questions.length; i++) {
+    var selectedOption = questions[i].querySelector("input[type='radio']:checked");
+    var correctAnswer = questions[i].getAttribute("data-answer");
+
+    if (!selectedOption) {
+      allAnswered = false;
+      displayNotification("请回答所有题目。");
+      break;
+    } else {
+      // 调用标记选项的函数
+      markOption(selectedOption, correctAnswer);
+
+      // 更新总题数和正确次数
+      totalQuestions++;
+      if (selectedOption.value === correctAnswer) {
+        correctAnswers++;
+      }      
+    }
+  }
+
+  if (allAnswered) {
+    
+    var feedbackMessage = "<p>答题完成！<br>当前累计得分: " + score + "</p>";
+    feedbackMessage += "<button onclick='generateNewQuestions()'>生成新题目</button>";
+
+    feedbackContainer.innerHTML = feedbackMessage;
+    feedbackContainer.style.display = "block";
+    questionsGenerated = false; // 允许重新生成题目
+
+    // 更新计分板信息
+    updateScoreMessage();
+  }
 }
 
-var feedbackContainer = document.getElementById("notification");
-feedbackContainer.innerHTML = ""; // 清空之前的反馈信息
-
-var questions = document.querySelectorAll("#questions form");
-var allAnswered = true;
-
-for (var i = 0; i < questions.length; i++) {
-var selectedOption = questions[i].querySelector("input[type='radio']:checked");
-var correctAnswer = questions[i].getAttribute("data-answer");
-
-if (!selectedOption) {
-  allAnswered = false;
-  displayNotification("请回答所有题目。");
-  break;
-} else {
-  // 调用记录答案的函数
-  recordAnswer(selectedOption.value, correctAnswer);
-}
-}
-
-if (allAnswered) {
-var feedbackMessage = "<p>答题完成！得分: " + score + "</p>";
-feedbackMessage += "<button onclick='generateNewQuestions()'>生成新题目</button>";
-feedbackMessage += "<button onclick='showCorrectAnswers()'>详细答案</button>";
-
-feedbackContainer.innerHTML = feedbackMessage;
-feedbackContainer.style.display = "block";
-questionsGenerated = false; // 允许重新生成题目
-
-// 更新计分板信息
-updateScoreMessage();
-}
-}
 // 显示通知的函数
 function displayNotification(message) {
   var feedbackContainer = document.getElementById("notification");
@@ -302,17 +309,40 @@ function showCorrectAnswers() {
   for (var i = 0; questions && i < questions.length; i++) {
     var correctAnswer = questions[i].getAttribute("data-answer");
     feedbackContainer.innerHTML += "<p>第 " + (i + 1) + " 题的正确答案是 " + correctAnswer + "。</p>";
+
+    // 获取用户选择的选项
+    var selectedOption = questions[i].querySelector("input[type='radio']:checked");
+
+    // 将选项标记为正确或错误的颜色
+    markOption(selectedOption, correctAnswer);
   }
 
-  // 设置通知窗口的最大高度
-  feedbackContainer.style.maxHeight = "80vh";
   // 添加生成新题目按钮
   feedbackContainer.innerHTML += "<button onclick='generateNewQuestions()'>生成新题目</button>";
 
   feedbackContainer.style.display = "block";
-  // 在生成详细答案页面或更改标题后，手动调用翻译
-  translate.execute();
+}
 
+// 标记选项为正确或错误的颜色的函数
+function markOption(selectedOption, correctAnswer) {
+  if (selectedOption) {
+    var label = selectedOption.parentElement;
+    var isCorrect = selectedOption.value === correctAnswer;
+
+    if (isCorrect) {
+      label.style.color = "green"; // 正确答案颜色为绿色
+      // 更新得分
+      score += 1;
+    } else {
+      label.style.color = "red"; // 用户选择错误的答案颜色为红色
+
+      // 标记正确答案的颜色为绿色
+      var correctOption = label.parentElement.querySelector("input[value='" + correctAnswer + "']");
+      if (correctOption) {
+        correctOption.parentElement.style.color = "green";
+      }
+    }
+  }
 }
 
 // 拖动通知窗口的函数
