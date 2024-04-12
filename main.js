@@ -18,12 +18,15 @@ var historyNotifications = []; // 保存历史记录的数组
 var maxHistoryItems = 3; // 最大历史记录数
 var isDraggingScoreBoard = false;
 var offsetXScoreBoard, offsetYScoreBoard, initialXScoreBoard, initialYScoreBoard;
-
+// 在全局作用域中声明变量
+var minNumber;
+var maxNumber;
 
 // 生成题目的函数
 function generateQuestions(questionCount, optionCount, selectedOperators, minNumber, maxNumber, score) {
   // 将得分传递给生成题目的逻辑
   generateQuestionsLogic(questionCount, optionCount, selectedOperators, minNumber, maxNumber, score);
+  
 }
 // 生成题目逻辑的辅助函数
 function generateQuestionsLogic(questionCount, optionCount, selectedOperators, minNumber, maxNumber, score) {
@@ -75,7 +78,7 @@ function generateQuestionsLogic(questionCount, optionCount, selectedOperators, m
 
     // ... 之前的生成题目逻辑 ...
 
-    var options = generateOptions(answer, i, optionCount);
+    var options = generateOptions(answer, i, optionCount, minNumber, maxNumber);
 
     var question = num1 + " " + operator + " " + num2 + " = ?";
     var questionHTML = "<p>" + question + "</p><form data-answer='" + answer + "'>" + options + "</form>";
@@ -225,20 +228,40 @@ function calculateAnswer(num1, num2, operator) {
 }
 
 // 生成选项的函数
-function generateOptions(answer, questionIndex, optionCount) {
-  var options = [answer];
+function generateOptions(answer, questionIndex, optionCount, maxNumber, minNumber) {
+  var options = [answer]; // 初始选项包含正确答案
+
+  // 确保minNumber小于maxNumber
+  if (minNumber > maxNumber) {
+    // 如果不是，则交换它们的值
+    var temp = minNumber;
+    minNumber = maxNumber;
+    maxNumber = temp;
+  }
+
+  // 计算范围的绝对值
+  var range = maxNumber - minNumber + 1; // 总是正数
+
+  // 生成选项的循环
   while (options.length < optionCount) {
-    var randomOption = Math.floor(Math.random() * 40) + 1;
+    // 生成一个介于minNumber和maxNumber之间的随机数
+    var randomOption = Math.floor(Math.random() * range) + minNumber;
+
+    // 确保生成的选项不重复且未被包含在options数组中
     if (!options.includes(randomOption)) {
       options.push(randomOption);
     }
   }
-  options.sort(function (a, b) {
-    return 0.5 - Math.random()
+
+  // 使用更稳定的排序算法来随机排序选项
+  options.sort(function() {
+    return 0.5 - Math.random();
   });
+
+  // 生成HTML结构的选项
   var optionsHTML = "";
   for (var i = 0; i < options.length; i++) {
-    optionsHTML += "<label><input type='radio' name='q" + questionIndex + "' value='" + options[i] + "'>" + options[i] + "</label>";
+    optionsHTML += "<label><input type='radio' name='q" + questionIndex + "' value='" + options[i] + "'>" + options[i] + "</label> ";
   }
   return optionsHTML;
 }
@@ -253,18 +276,28 @@ function checkAnswers() {
   var feedbackContainer = document.getElementById("notification");
   feedbackContainer.innerHTML = ""; // 清空之前的反馈信息
 
-  var questions = document.querySelectorAll("#questions form");
   var allAnswered = true;
 
+  // 在进入循环之前检查所有题目是否已完成
+  var hasUnansweredQuestion = false;
+  var questions = document.querySelectorAll("#questions form");
+  for (var i = 0; i < questions.length; i++) {
+    var selectedOption = questions[i].querySelector("input[type='radio']:checked");
+    if (!selectedOption) {
+      hasUnansweredQuestion = true;
+      break;
+    }
+  }
+ 
+  if (hasUnansweredQuestion) {
+    displayNotification("请回答所有题目。");
+    return; // 退出函数，因为没有所有题目都已回答
+  }
+  
   for (var i = 0; i < questions.length; i++) {
     var selectedOption = questions[i].querySelector("input[type='radio']:checked");
     var correctAnswer = questions[i].getAttribute("data-answer");
 
-    if (!selectedOption) {
-      allAnswered = false;
-      displayNotification("请回答所有题目。");
-      break;
-    } else {
       // 调用标记选项的函数
       markOption(selectedOption, correctAnswer);
 
@@ -272,8 +305,9 @@ function checkAnswers() {
       totalQuestions++;
       if (selectedOption.value === correctAnswer) {
         correctAnswers++;
-      }      
-    }
+      } else {
+        wrongAnswers++; // 增加错误次数
+      }
   }
 
   if (allAnswered) {
@@ -283,7 +317,7 @@ function checkAnswers() {
 
     feedbackContainer.innerHTML = feedbackMessage;
     feedbackContainer.style.display = "block";
-    questionsGenerated = false; // 允许重新生成题目
+    questionsGenerated = true; // 允许重新生成题目
 
     // 更新计分板信息
     updateScoreMessage();
@@ -298,29 +332,6 @@ function displayNotification(message) {
   notificationTimeout = setTimeout(function () {
     feedbackContainer.style.display = "none";
   }, 3000); // 3秒后隐藏弹窗
-}
-
-// 显示正确答案的函数
-function showCorrectAnswers() {
-  var feedbackContainer = document.getElementById("notification");
-  feedbackContainer.innerHTML = "<p>题目的正确答案：</p>";
-
-  var questions = document.querySelectorAll("#questions form");
-  for (var i = 0; questions && i < questions.length; i++) {
-    var correctAnswer = questions[i].getAttribute("data-answer");
-    feedbackContainer.innerHTML += "<p>第 " + (i + 1) + " 题的正确答案是 " + correctAnswer + "。</p>";
-
-    // 获取用户选择的选项
-    var selectedOption = questions[i].querySelector("input[type='radio']:checked");
-
-    // 将选项标记为正确或错误的颜色
-    markOption(selectedOption, correctAnswer);
-  }
-
-  // 添加生成新题目按钮
-  feedbackContainer.innerHTML += "<button onclick='generateNewQuestions()'>生成新题目</button>";
-
-  feedbackContainer.style.display = "block";
 }
 
 // 标记选项为正确或错误的颜色的函数

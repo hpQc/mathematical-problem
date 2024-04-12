@@ -101,12 +101,15 @@ label {
   padding: 16px;
   margin-left: 0;
 }
-
-#sidebarToggle {
-  display: block;
+ /* 隐藏原始的checkbox */
+ #sidebarToggle {
+  display: none;
+}
+#sidebarToggleLabel {
+  display: inline-block;
   position: fixed;
   left: 10px;
-  top: 10px;
+  top: 20px;
   cursor: pointer;
   z-index: 2;
   -webkit-user-select: none;
@@ -115,49 +118,37 @@ label {
   height: 40px;
 }
 
-#sidebarToggle::before,
-#sidebarToggle::after,
-#sidebarToggle {
+#sidebarToggleLabel::before,
+#sidebarToggleLabel::after,
+#sidebarToggleLabel{
   content:'';
   position: absolute;
   height: 5px;
   width: 35px;
-  background-color: #333 !important;
+  background-color: #333;
   transition: 0.4s;
+  border-radius: 8px;
 }
-
-#sidebarToggle::before {
+#sidebarToggleLabel::before {
   top: -10px;
 }
 
-#sidebarToggle::after {
+#sidebarToggleLabel::after {
   top: 10px;
 }
 
-#sidebarToggle:checked::before {
-  transform: rotate(-45deg) translate(-9px, 6px);
+#sidebarToggle:checked + #sidebarToggleLabel::before {
+  transform: rotate(-45deg) translate(-7px, 6px);
 }
 
-#sidebarToggle:checked::after {
+#sidebarToggle:checked + #sidebarToggleLabel::after {
   transform: rotate(45deg) translate(-8px, -8px);
 }
 
-#sidebarToggle:checked {
-  opacity: 1;
-}
-
-#sidebarToggle:checked + .bar:nth-child(1) {
-  transform: rotate(-45deg) translate(-9px, 6px);
-}
-
-#sidebarToggle:checked + .bar:nth-child(2) {
-  opacity: 0;
-}
-
-#sidebarToggle:checked + .bar:nth-child(3) {
-  transform: rotate(45deg) translate(-8px, -8px);
-}
-
+  /* 隐藏中间的横杠 */
+  #sidebarToggle:checked + #sidebarToggleLabel{
+    width:0;
+  }
 #sidebarToggle:checked ~ #sidebar {
   width: 250px;
 }
