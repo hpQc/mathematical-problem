@@ -50,11 +50,12 @@
 
   <script src="https://cdn.jsdelivr.net/gh/xnx3/translate@latest/translate.js/translate.min.js"></script>
   <script>
-    translate.setUseVersion2(); //设置使用v2.x 版本
-    translate.listener.start();    //开启html页面变化的监控，对变化部分会进行自动翻译。注意，这里变化区域，是指使用 translate.setDocuments(...) 设置的区域。如果未设置，那么为监控整个网页的变化
-    translate.execute(); //执行翻译初始化操作，显示出select语言选择
+    translate.setUseVersion2();
+    translate.listener.start();
+    translate.execute();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.3.4/lib/darkmode-js.min.js"></script>
+  <script src="https://cfae.qwqsky.top/tracker.min.js" data-website-id="qwqskyMath" defer></script>
   <script>
     function addDarkmodeWidget() {
       new Darkmode().showWidget();
